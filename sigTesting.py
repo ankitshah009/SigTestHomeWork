@@ -17,18 +17,37 @@ class SignificanceTesting(object):
 							  'Baseline+Ordering+Fusion_R2', 'Baseline_RSU4',	'Baseline+Fusion_RSU4' \
 							  'Baseline+Ordering_RSU4', 'Baseline+Ordering+Fusion_RSU4']
 		self.data = genfromtxt(self.filePath, delimiter=',')[1:].T
+                self.data = np.asarray(self.data, dtype=np.float32)
+                self.distributional_stats(self.models_scores,self.data)
+
+
+        def distributional_stats(self,headers,data):
+                dist_score = dict()
+                for i,header_title in enumerate(headers):
+                    dist_score[header_title]=[]
+                    mean_score=np.mean(data[i])
+                    median_score=np.median(data[i])
+                    mode_score=stats.mode(data[i])
+                    min_score=np.amin(data[i])
+                    max_score=np.amax(data[i])
+                    dist_score[header_title].append(mean_score)
+                    dist_score[header_title].append(median_score)
+                    dist_score[header_title].append(mode_score)
+                    dist_score[header_title].append(min_score)
+                    dist_score[header_title].append(max_score)
+                print dist_score
 
 
 	def ksTest(self, listA, listB):
-		value, pvalue = None
+		value, pvalue = ks_2samp(listA,listB)
 		return pvalue
 
 	def tTest(self, listA, listB):
-		value, pvalue = None
+		value, pvalue = ttest_ind(listA,listB)
 		return pvalue
 
 	def wilcoxonTest(self, listA, listB):
-		T, pvalue = None
+		T, pvalue = wilcoxon(listA,listB)
 		return pvalue
 
 	def writeOutput(self):
