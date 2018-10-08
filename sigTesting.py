@@ -5,6 +5,7 @@ from scipy.stats import ks_2samp
 from scipy.stats import wilcoxon
 from scipy import stats
 import csv
+import matplotlib.pyplot as plt
 
 
 class SignificanceTesting(object):
@@ -104,6 +105,7 @@ class SignificanceTesting(object):
 		resultsData[11][2:] = self.computeResults(self.data, 6, 7)
 		resultsData[12][2:] = self.computeResults(self.data, 5, 7)
 
+
 		with resultsFile:
 			writer = csv.writer(resultsFile)
 			writer.writerows(resultsData)
@@ -124,5 +126,6 @@ if __name__ == '__main__':
 	#t = sigInstance.tTest()
 	#w = sigInstance.wilcoxonTest()
 	pl = sigInstance.writeOutput()
+        sigInstance.boxingPlot()
 
 
