@@ -62,6 +62,7 @@ class SignificanceTesting(object):
 		mean1=np.mean(metric_score[col1],dtype=np.float32)
 		mean2=np.mean(metric_score[col2],dtype=np.float32)
 		mean_diff=abs(mean1-mean2)
+                metrics.append(mean_diff)
 		metrics.append(self.tTest(metric_score[col1],metric_score[col2]))
 		metrics.append(self.wilcoxonTest(metric_score[col1],metric_score[col2]))
 		metrics.append(self.ksTest(metric_score[col1],metric_score[col2]))
