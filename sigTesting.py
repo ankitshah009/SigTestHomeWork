@@ -13,11 +13,18 @@ class SignificanceTesting(object):
 		self.loadData()
 
 	def loadData(self):
-		self.models_scores = ['Baseline_R2', 'Baseline+Fusion_R2', 'Baseline+Ordering_R2',\
-							  'Baseline+Ordering+Fusion_R2', 'Baseline_RSU4',	'Baseline+Fusion_RSU4' \
-							  'Baseline+Ordering_RSU4', 'Baseline+Ordering+Fusion_RSU4']
+                #### Removing hard coded values for the header since the csv file already contains the header information
+                #### Using csv in order to get the hard coded values
+		#self.models_scores = ['Baseline_R2', 'Baseline+Fusion_R2', 'Baseline+Ordering_R2','Baseline+Ordering+Fusion_R2', 'Baseline_RSU4','Baseline+Fusion_RSU4', 'Baseline+Ordering_RSU4', 'Baseline+Ordering+Fusion_RSU4']
+
+                #print self.models_scores
+                with open(self.filePath) as f:
+                    reader=csv.reader(f)
+                    self.models_scores=next(reader)
+                print self.models_scores
 		self.data = genfromtxt(self.filePath, delimiter=',')[1:].T
                 self.data = np.asarray(self.data, dtype=np.float32)
+                ### Calling this function to perform the distributional statistics analysis.
                 self.distributional_stats(self.models_scores,self.data)
 
 
@@ -50,6 +57,17 @@ class SignificanceTesting(object):
 		T, pvalue = wilcoxon(listA,listB)
 		return pvalue
 
+        def computeResults(self,metric_score,col1,col2):
+		metrics=[]
+		mean1=np.mean(metric_score[col1],dtype=np.float32)
+		mean2=np.mean(metric_score[col2],dtype=np.float32)
+		mean_diff=abs(mean1-mean2)
+		metrics.append(self.tTest(metric_score[col1],metric_score[col2]))
+		metrics.append(self.wilcoxonTest(metric_score[col1],metric_score[col2]))
+		metrics.append(self.ksTest(metric_score[col1],metric_score[col2]))
+		return metrics
+		
+
 	def writeOutput(self):
 		resultsFile = open('SigTestResults.csv', 'w')
 		w = 6
@@ -72,6 +90,18 @@ class SignificanceTesting(object):
 		resultsData[10][1] = 'Baseline & Ordering+Fusion'
 		resultsData[11][1] = 'Ordering & Ordering+Fusion'
 		resultsData[12][1] = 'Fusion & Ordering+Fusion'
+		resultsData[1][2:] = self.computeResults(self.data, 0, 1)
+		resultsData[2][2:] = self.computeResults(self.data, 0, 2)
+		resultsData[3][2:] = self.computeResults(self.data, 1, 2)
+		resultsData[4][2:] = self.computeResults(self.data, 0, 3)
+		resultsData[5][2:] = self.computeResults(self.data, 2, 3)
+		resultsData[6][2:] = self.computeResults(self.data, 1, 3)
+		resultsData[7][2:] = self.computeResults(self.data, 4, 5)
+		resultsData[8][2:] = self.computeResults(self.data, 4, 6)
+		resultsData[9][2:] = self.computeResults(self.data, 5, 6)
+		resultsData[10][2:] = self.computeResults(self.data, 4, 7)
+		resultsData[11][2:] = self.computeResults(self.data, 6, 7)
+		resultsData[12][2:] = self.computeResults(self.data, 5, 7)
 
 		with resultsFile:
 			writer = csv.writer(resultsFile)
